@@ -1,16 +1,17 @@
 [project]
-name = "backend"
+name = "study-tracker-backend"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-authors = [
-    { name = "Babu Macharia", email = "babu.macharia@gmail.com" }
-]
+authors = [{ name = "Babu Macharia", email = "babu@gmail.com" }]
 requires-python = ">=3.13"
-dependencies = []
+dependencies = ["fastapi>=0.115.12", "httpx>=0.28.1", "uvicorn>=0.34.2"]
 
 [project.scripts]
-backend = "backend:main"
+study-tracker-api = "backend.main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/backend"]
 
 [build-system]
 requires = ["hatchling"]
