@@ -32,4 +32,3 @@ class Stats(BaseModel):
     sessions_by_tag: Dict[str, int] = Field(
         ..., description="Number of sessions grouped by tag"
     )
-

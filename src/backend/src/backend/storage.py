@@ -120,4 +120,3 @@ def get_statistics() -> Stats:
         f"Calculated statistics: {total_minutes} minutes across {len(sessions)} sessions"
     )
     return stats
-
