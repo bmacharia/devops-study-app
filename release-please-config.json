@@ -1,4 +1,4 @@
-// ./release-please-config.json  
+
 {
   "packages": {
     "src/backend": {
