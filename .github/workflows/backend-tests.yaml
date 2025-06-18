@@ -93,5 +93,5 @@ jobs:
   trigger_e2e:
     name: Trigger E2E Tests
     needs: test
-    if: success():
+    if: success()
     uses: ./.github/workflows/e2e-tests.yaml
