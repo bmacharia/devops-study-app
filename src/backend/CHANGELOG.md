@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/bmacharia/devops-study-app/compare/backend-v0.2.0...backend-v0.2.1) (2025-06-25)
+
+
+### Bug Fixes
+
+* **backend:** trigger CI ([2523f8b](https://github.com/bmacharia/devops-study-app/commit/2523f8b2be314e7569c03979c1de944d033ac488))
+
 ## [0.2.0](https://github.com/bmacharia/devops-study-app/compare/backend-v0.1.0...backend-v0.2.0) (2025-06-11)
 
 
