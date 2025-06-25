@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.4](https://github.com/bmacharia/devops-study-app/compare/backend-v0.2.3...backend-v0.2.4) (2025-06-25)
+
+
+### Bug Fixes
+
+* **backend:** trigger the CI/CD pipeline ([8e24925](https://github.com/bmacharia/devops-study-app/commit/8e24925cbb3fc4f2f7eb4442e50474461f8d50e7))
+
 ## [0.2.3](https://github.com/bmacharia/devops-study-app/compare/backend-v0.2.2...backend-v0.2.3) (2025-06-25)
 
 
