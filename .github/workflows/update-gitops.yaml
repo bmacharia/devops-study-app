@@ -34,7 +34,7 @@ jobs:
       - name: Checkout GitOps repository
         uses: actions/checkout@v4
         with:
-          repository: mischavandenburg/devops-study-app-gitops
+          repository: bmacharia/devops-study-app-gitops
           ref: main
           path: devops-study-app-gitops
           ssh-key: ${{ secrets.GITOPS_DEPLOY_KEY }}
