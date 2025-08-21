@@ -1,71 +1,80 @@
+# DevOps Study App: Technical Documentation
 
-# DevOps Study App
-
-A Python-based application designed to showcase end-to-end DevOps best practices, from local development to production-ready CI/CD and container orchestration.
+This repository provides a reference implementation of a full-stack Python application, architected to demonstrate advanced DevOps practices. The project integrates automated CI/CD pipelines (GitHub Actions), containerization, and Kubernetes-based deployment, with a focus on reproducibility, automation, and production-readiness.
 
 ## Table of Contents
 
-- [About The Project](#about-the-project)  
-- [Built With](#built-with)  
-- [Prerequisites](#prerequisites)  
-- [Getting Started](#getting-started)  
-- [Usage](#usage)  
-- [Folder Structure](#folder-structure)  
-- [CI/CD Workflows](#ci-cd-workflows)  
-- [Development](#development)  
-- [Contributing](#contributing)  
-- [License](#license)  
-- [Contact](#contact)  
+- [DevOps Study App: Technical Documentation](#devops-study-app-technical-documentation)
+  - [Table of Contents](#table-of-contents)
+  - [System Overview](#system-overview)
+  - [Technology Stack](#technology-stack)
+  - [Environment Setup](#environment-setup)
+  - [Development Workflow](#development-workflow)
+  - [Directory Structure](#directory-structure)
+  - [CI/CD Pipeline and Kubernetes Integration](#cicd-pipeline-and-kubernetes-integration)
 
-## About The Project
+## System Overview
 
-This repo demonstrates a full DevOps workflow around a Python application, covering:
+The system consists of two primary Python services (backend and frontend), each containerized and orchestrated via Kubernetes. The repository is structured to support:
 
-- **Remote-container development** with VS Code DevContainers 
-- **Dependency & packaging** via `mise.toml` (Mise CLI)   
-- **Code quality** enforced by pre-commit hooks (`.pre-commit-config.yaml`)  
-- **Containerization** using Docker and Docker Compose (`docker-compose.yaml`)   
-- **Continuous Integration** pipelines in GitHub Actions (`.github/workflows`)  
-- **Application source** in Python under `src/` :contentReference[oaicite:5]{index=5}  
+- Local development and integration testing using Docker Compose
+- Automated code quality enforcement and testing
+- Multi-stage container builds for production parity
+- Kubernetes deployment with kustomize overlays for environment-specific configuration
+- GitOps workflows and automated release management
+- End-to-end CI/CD pipeline using GitHub Actions
 
-## Built With
+## Technology Stack
 
-- **Python** 
-- **Docker** & **K3d** 
-- **GitHub Actions** (CI/CD pipelines)
-- **DevContainers** (`.devcontainer/`)
-- **pre-commit** (`.pre-commit-config.yaml`) 
-- **Mise CLI** (`mise.toml`) 
+- Python 3.13 (application logic)
+- Docker & Docker Compose (containerization, local orchestration)
+- Kubernetes (K3d for local clusters, kustomize for overlays)
+- GitHub Actions (CI/CD automation)
+- Mise (toolchain/environment management)
 
-## Prerequisites
+## Environment Setup
 
-- **Docker** & **Docker Compose**  
-- **Python 3.13**  
-- **Mise CLI** (install via `pip install mise`)  
+Required tools:
 
+- Docker & Docker Compose
+- Python 3.13
+- Mise CLI (`pip install mise`)
 
-## Folder Structure
+1. Install all prerequisites listed above.
+2. Clone this repository.
+3. Run `mise install` to provision the required toolchain and Python environment.
+4. For local development, use `docker-compose up` to start all services.
 
-```
+## Development Workflow
+
+- Application code is located in `src/` (backend and frontend)
+- Unit and integration tests are in `src/backend/tests`
+- Use scripts in `scripts/` and `kubernetes/` for cluster setup, deployment, and automation
+
+## Directory Structure
+
+```text
 .
-├── .devcontainer/                 # VS Code remote-container config
-├── .github/
-│   └── workflows/                # CI/CD pipeline definitions
-├── scripts/                      # Helper scripts (build, deploy, etc.)
-├── src/                          # Python application code
-├── .pre-commit-config.yaml       # Linting & formatting hooks
-├── docker-compose.yaml           # Multi-container dev/testing setup
-├── mise.toml                     # Dependency & packaging config
-└── ReadMe.md                     # This file
+├── src/
+│   ├── backend/      # Backend service: API, business logic, tests, Dockerfile
+│   └── frontend/     # Frontend service: Jinja2 templates, Dockerfile
+├── kubernetes/       # Kubernetes manifests, kustomize overlays, cluster setup scripts
+├── scripts/          # Automation and utility scripts
+├── dev-keys/         # SSH keys for GitOps/CI deployment
+├── docker-compose.yaml
+├── mise.toml
+├── README.md
+└── release-please-config.json
 ```
 
+## CI/CD Pipeline and Kubernetes Integration
 
-## CI/CD Workflows
+The repository implements a comprehensive CI/CD pipeline using **GitHub Actions**. Key stages include:
 
-Under `.github/workflows/` you’ll find automated pipelines for:
+- Linting, formatting, and automated testing on every commit and pull request
+- Multi-stage Docker image build and registry publish
+- End-to-end application testing on a real Kubernetes cluster provisioned with **K3d** (in-pipeline)
+- Kubernetes deployment using manifests and kustomize overlays
+- Automated release management and GitOps support
 
-* **Linting & Formatting**
-* **Unit & Integration Testing**
-* **Docker Image Build & Publish**
-* **Release Automation**
-
+Kubernetes manifests and overlays are provided for both local and remote cluster deployments. The pipeline leverages K3d to provision a lightweight Kubernetes cluster for integration and E2E testing, ensuring production parity and deployment reliability.
