@@ -73,8 +73,9 @@ The repository implements a comprehensive CI/CD pipeline using **GitHub Actions*
 
 - Linting, formatting, and automated testing on every commit and pull request
 - Multi-stage Docker image build and registry publish
+- Automated release and publishing of Docker images to a container registry
 - End-to-end application testing on a real Kubernetes cluster provisioned with **K3d** (in-pipeline)
 - Kubernetes deployment using manifests and kustomize overlays
 - Automated release management and GitOps support
 
-Kubernetes manifests and overlays are provided for both local and remote cluster deployments. The pipeline leverages K3d to provision a lightweight Kubernetes cluster for integration and E2E testing, ensuring production parity and deployment reliability.
+Kubernetes manifests and overlays are provided for both local and remote cluster deployments. The pipeline leverages K3d to provision a lightweight Kubernetes cluster for integration and E2E testing, ensuring production parity and deployment reliability. Docker images are automatically built and released to the configured registry as part of the release workflow.
