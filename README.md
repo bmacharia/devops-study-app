@@ -1,6 +1,5 @@
 
 
----
 
 ````markdown
 # 🚀 DevOps Study App: Cloud-Native CI/CD & Kubernetes Platform
@@ -158,16 +157,6 @@ Then reference them in the README:
 
 ---
 
-## 🧾 Resume / LinkedIn Project Bullets (Copy-Ready)
-
-* **Built end-to-end CI/CD** with **GitHub Actions** (lint, test, **Trivy** scan, semantic releases), cutting manual deployment effort by **~90%**.
-* Deployed application to **Kubernetes (K3d)** using **Kustomize** overlays; validated **zero-downtime** rollout and **zero-drift** GitOps patterns.
-* Standardized dev environments via **DevContainers**, eliminating “works on my machine” issues and reducing onboarding time by **~70%**.
-* Designed platform **AI-readiness**: containerized architecture suitable for GPU scheduling and **LLM inference** services.
-
-> **LinkedIn Title Suggestion:** *AI-Ready CI/CD Pipeline with Kubernetes (GitHub Actions, Trivy, Flux-compatible)*
-
----
 
 ## 📫 Contact & Collaboration
 
