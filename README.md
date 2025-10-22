@@ -110,26 +110,6 @@ flowchart LR
 
 ---
 
-## 🎬 Demo & Screenshots
-
-* **Pipeline Run (CI → Deploy):**
-  Add a short 10–20s GIF at `assets/pipeline.gif`
-
-* **App Running on K3d:**
-  Add a static screenshot at `assets/app.png`
-
-**How to record a quick demo GIF (Linux/macOS):**
-
-```bash
-# Option 1: asciinema (terminal demos)
-pip install asciinema
-asciinema rec -c "bash -lc 'git commit -m demo && gh workflow run main.yml && gh run watch'"
-
-# Option 2: Peek (GUI screen recorder) or macOS Screenshot.app (⌘+Shift+5)
-# Save as assets/pipeline.gif
-```
-
-Then reference them in the README:
 
 ```markdown
 ![CI/CD Pipeline](assets/pipeline.gif)
