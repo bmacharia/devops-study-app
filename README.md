@@ -111,10 +111,6 @@ flowchart LR
 ---
 
 
-![CI/CD Pipeline](assets/pipeline.gif)
-![App on K3d](assets/app.png)
-
----
 
 ## 🌟 Outcomes & Learning Value
 
