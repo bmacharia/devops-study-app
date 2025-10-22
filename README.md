@@ -171,7 +171,3 @@ If you’re interested in DevOps, Kubernetes, Cloud Native development, or AI in
 
 ```
 
----
-
-Want me to **open PR-ready changes** (commit message + branch name suggestions), or generate a **repo description** and **topics** list to improve GitHub discovery?
-```
