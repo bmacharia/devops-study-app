@@ -139,9 +139,5 @@ If you’re interested in DevOps, Kubernetes, Cloud Native development, or AI in
 **🔗 LinkedIn:** [https://linkedin.com/in/babu-macharia](https://linkedin.com/in/babu-macharia)
 **🌐 Blog:** [https://babumacharia.com](https://babumacharia.com)
 
----
 
-### ⭐ If this project adds value, don’t forget to star the repository!
-
-```
 
