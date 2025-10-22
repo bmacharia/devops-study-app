@@ -1,7 +1,6 @@
 
 
 
-````markdown
 # 🚀 DevOps Study App: Cloud-Native CI/CD & Kubernetes Platform
 
 A fully automated CI/CD pipeline and Kubernetes deployment platform designed to simulate **real-world production infrastructure**. This project demonstrates **end-to-end DevOps best practices**, including GitOps workflows, automated testing, container security, infrastructure automation, and AI-ready deployment patterns.
