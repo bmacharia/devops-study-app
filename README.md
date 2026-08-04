@@ -3,6 +3,21 @@
 
 # 🚀 DevOps Study App: Cloud-Native CI/CD & Kubernetes Platform
 
+## For Hiring Managers
+
+**What this demonstrates:** Production-grade CI/CD pipeline design — from code commit to deployed application, with automated quality gates at every stage.
+
+**What to evaluate:**
+- `.github/workflows/` — GitHub Actions pipeline definitions
+- `kubernetes/` — Kustomize overlays for environment-specific deployment
+- `.devcontainer/` — Standardized developer environment
+- `src/` — Application code (Python 3.13)
+- `release-please-config.json` — Automated semantic versioning
+
+**Skills demonstrated:** GitHub Actions, Trivy, PyTest, Ruff, Release Please, DevContainers, K3d, Kustomize, Docker, Python, zero-downtime deployment patterns
+
+**Time invested:** 47+ commits
+
 A fully automated CI/CD pipeline and Kubernetes deployment platform designed to simulate **real-world production infrastructure**. This project demonstrates **end-to-end DevOps best practices**, including GitOps workflows, automated testing, container security, infrastructure automation, and AI-ready deployment patterns.
 
 > **Purpose:** Build a production-grade platform that enables developers to ship applications faster, safer, and with zero manual intervention.
