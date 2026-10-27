@@ -50,7 +50,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          uv run pytest tests/ -v --cov=src/backend --cov-report=xml --cov-fail-under=80
+          DATA_DIR="$(mktemp -d)/data" uv run --locked pytest tests/ -v --cov=backend --cov-report=xml --cov-fail-under=80
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
@@ -80,13 +80,12 @@ jobs:
         run: docker build -t backend-app:latest .
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.30.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: "backend-app:latest"
           format: "table"
-          exit-code: "0"
-          # exit-code: '1' # Fail the workflow if vulnerabilities are found.
-          ignore-unfixed: true
+          exit-code: "1"
+          ignore-unfixed: false
           vuln-type: "os,library"
           severity: "CRITICAL,HIGH"
 

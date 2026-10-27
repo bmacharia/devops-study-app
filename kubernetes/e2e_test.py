@@ -25,6 +25,7 @@ class K8sTestEnvironment:
         self.root_dir = os.path.dirname(self.base_dir)
         self.backend_url = ""
         self.frontend_url = ""
+        self.port_forwards = []
 
         # Sample data for testing
         self.test_session = {"minutes": 45, "tag": "kubernetes"}
@@ -107,109 +108,39 @@ class K8sTestEnvironment:
         self.run_command(f"k3d image import frontend:dev -c {self.cluster_name}")
 
     def get_service_urls(self):
-        """Get URLs for the frontend and backend services using LoadBalancer external IPs"""
-        logger.info("Getting LoadBalancer service URLs")
+        """Expose Kubernetes Services to the test runner via port-forwarding."""
+        services = [
+            ("dev-backend", 32112, 22112),
+            ("dev-frontend", 32111, 22111),
+        ]
 
-        # Get actual service names from the namespace
-        result = self.run_command(
-            "kubectl get svc -n study-app -o name",
-            shell=True,
-            check=False,
-            capture_output=True,
-        )
-
-        if result.returncode != 0:
-            logger.error("Failed to get services from namespace")
-            return False
-
-        services = result.stdout.decode("utf-8").strip().split("\n")
-        frontend_svc_name = None
-        backend_svc_name = None
-
-        for svc in services:
-            svc_name = svc.split("/")[
-                -1
-            ]  # Extract service name from "service/name" format
-            if "frontend" in svc_name:
-                frontend_svc_name = svc_name
-                logger.info(f"Detected frontend service: {frontend_svc_name}")
-            elif "backend" in svc_name:
-                backend_svc_name = svc_name
-                logger.info(f"Detected backend service: {backend_svc_name}")
-
-        if not frontend_svc_name or not backend_svc_name:
-            logger.error("Could not find frontend and backend services")
-            return False
-
-        # Wait for LoadBalancer services to get external IPs
-        max_retries = 30
-        for attempt in range(max_retries):
-            # Get frontend service external IP
-            result = self.run_command(
-                f"kubectl get svc -n study-app {frontend_svc_name} -o jsonpath='{{.status.loadBalancer.ingress[0].ip}}'",
-                shell=True,
-                check=False,
-                capture_output=True,
-            )
-            frontend_ip = (
-                result.stdout.decode("utf-8").strip()
-                if result.returncode == 0
-                else None
-            )
-
-            # Get backend service external IP
-            result = self.run_command(
-                f"kubectl get svc -n study-app {backend_svc_name} -o jsonpath='{{.status.loadBalancer.ingress[0].ip}}'",
-                shell=True,
-                check=False,
-                capture_output=True,
-            )
-            backend_ip = (
-                result.stdout.decode("utf-8").strip()
-                if result.returncode == 0
-                else None
-            )
-
-            # Get service ports
-            result = self.run_command(
-                f"kubectl get svc -n study-app {frontend_svc_name} -o jsonpath='{{.spec.ports[0].port}}'",
-                shell=True,
-                check=False,
-                capture_output=True,
-            )
-            frontend_port = (
-                result.stdout.decode("utf-8").strip()
-                if result.returncode == 0
-                else "22111"
-            )
-
-            result = self.run_command(
-                f"kubectl get svc -n study-app {backend_svc_name} -o jsonpath='{{.spec.ports[0].port}}'",
-                shell=True,
-                check=False,
-                capture_output=True,
-            )
-            backend_port = (
-                result.stdout.decode("utf-8").strip()
-                if result.returncode == 0
-                else "21112"
-            )
-
-            if frontend_ip and backend_ip:
-                self.frontend_url = f"http://{frontend_ip}:{frontend_port}"
-                self.backend_url = f"http://{backend_ip}:{backend_port}"
-                logger.info(
-                    f"Service URLs: Frontend={self.frontend_url}, Backend={self.backend_url}"
+        for service_name, local_port, service_port in services:
+            command = [
+                "kubectl",
+                "-n",
+                "study-app",
+                "port-forward",
+                f"service/{service_name}",
+                f"{local_port}:{service_port}",
+                "--address=127.0.0.1",
+            ]
+            logger.info("Starting port-forward for %s", service_name)
+            try:
+                process = subprocess.Popen(
+                    command,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
                 )
-                return True
+            except OSError as exc:
+                logger.error("Failed to start port-forward: %s", exc)
+                return False
+            self.port_forwards.append(process)
 
-            logger.info(
-                f"Waiting for LoadBalancer services to get external IPs... (attempt {attempt + 1}/{max_retries})"
-            )
-            time.sleep(5)
-
-        logger.error("Failed to get service URLs after multiple retries")
-        return False
+        self.backend_url = "http://127.0.0.1:32112"
+        self.frontend_url = "http://127.0.0.1:32111"
+        logger.info("Backend URL: %s", self.backend_url)
+        logger.info("Frontend URL: %s", self.frontend_url)
+        return True
 
     def deploy_application(self):
         """Deploy the application using kubectl and kustomize"""
@@ -222,7 +153,7 @@ class K8sTestEnvironment:
         # Wait for pods to be ready
         logger.info("Waiting for pods to be ready...")
         self.run_command(
-            "kubectl wait --for=condition=Ready pods --all -n study-app --timeout=120s"
+            "kubectl wait --for=condition=Available deployments --all -n study-app --timeout=120s"
         )
 
         # Get the service URLs
@@ -383,8 +314,8 @@ class K8sTestEnvironment:
             # Test the frontend health endpoint
             health_url = urljoin(self.frontend_url, "/health")
             response = requests.get(health_url, timeout=5)
-            assert response.status_code in [200, 503], (
-                f"Frontend health check failed with unexpected status code {response.status_code}"
+            assert response.status_code == 200, (
+                f"Frontend health check failed with status code {response.status_code}"
             )
             health_data = response.json()
             assert "status" in health_data, (
@@ -392,6 +323,12 @@ class K8sTestEnvironment:
             )
             assert "api_connectivity" in health_data, (
                 "Frontend health endpoint doesn't include api_connectivity field"
+            )
+            assert health_data["status"] == "healthy", (
+                "Frontend reports an unhealthy status"
+            )
+            assert health_data["api_connectivity"] is True, (
+                "Frontend cannot connect to the backend API"
             )
             logger.info("Frontend health endpoint check passed")
 
@@ -401,6 +338,49 @@ class K8sTestEnvironment:
             return True
         except Exception as e:
             logger.error(f"Frontend test failed: {str(e)}")
+            return False
+
+    def test_frontend_to_backend(self):
+        """Submit a session through Flask and confirm FastAPI stored it."""
+        tag = f"ci-frontend-{time.time_ns()}"
+        minutes = 7
+
+        try:
+            response = requests.post(
+                urljoin(self.frontend_url, "/add_session"),
+                data={"minutes": str(minutes), "tag": tag},
+                allow_redirects=False,
+                timeout=5,
+            )
+            assert response.status_code in (302, 303), (
+                f"Frontend form submission returned HTTP {response.status_code}"
+            )
+
+            api_response = requests.get(
+                urljoin(self.backend_url, f"/sessions?tag={tag}"),
+                timeout=5,
+            )
+            assert api_response.status_code == 200, (
+                f"Backend session retrieval returned HTTP {api_response.status_code}"
+            )
+            sessions = api_response.json()
+            assert isinstance(sessions, list), (
+                "Backend returned a non-list session response"
+            )
+            assert any(
+                session.get("tag") == tag and session.get("minutes") == minutes
+                for session in sessions
+            ), "Session submitted through Flask was not found in the backend"
+
+            logger.info("Frontend-to-backend session creation test passed")
+            return True
+        except (
+            requests.RequestException,
+            AssertionError,
+            ValueError,
+            TypeError,
+        ) as exc:
+            logger.error("Frontend-to-backend integration test failed: %s", exc)
             return False
 
     def e2e_test_workflow(self):
@@ -414,8 +394,10 @@ class K8sTestEnvironment:
             # For now, just a simple check that both services are responding
             backend_ok = self.test_backend()
             frontend_ok = self.test_frontend()
+            if not (backend_ok and frontend_ok):
+                return False
 
-            return backend_ok and frontend_ok
+            return self.test_frontend_to_backend()
         except Exception as e:
             logger.error(f"E2E test workflow failed: {str(e)}")
             return False
@@ -459,7 +441,17 @@ class K8sTestEnvironment:
             logger.error(f"Test run failed with exception: {str(e)}")
             return False
         finally:
-            # Cleanup based on settings and test result
+            # Stop port-forward processes on both success and failure.
+            for process in self.port_forwards:
+                if process.poll() is None:
+                    process.terminate()
+                    try:
+                        process.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+                        process.wait()
+
+            # Preserve the existing Kubernetes cleanup policy.
             if (success and cleanup_on_success) or (not success and cleanup_on_failure):
                 self.cleanup()
 

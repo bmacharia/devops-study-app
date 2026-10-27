@@ -9,16 +9,22 @@ WORKDIR /app
 RUN --mount=type=cache,target=/root/.cache/uv \
   --mount=type=bind,source=uv.lock,target=uv.lock \
   --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-  uv sync --locked --no-install-project --no-editable
+  uv sync --locked --no-dev --no-install-project --no-editable
 
 # Copy the project into the intermediate image
 COPY . /app
 
 # Sync the project and install it, now that we have access to the source code
 RUN --mount=type=cache,target=/root/.cache/uv \
-  uv sync --locked --no-editable
+  uv sync --locked --no-dev --no-editable
 
 FROM python:3.13-alpine
+
+# Remove unused package-management tooling from the runtime image.
+RUN python -m pip uninstall --yes pip \
+  && python -c "import importlib.util; assert importlib.util.find_spec('pip') is None"
+
+# Create a non-root user and group with specific IDs
 
 # Create a non-root user and group with specific IDs
 RUN addgroup -S -g 1000 app && adduser -S -u 1000 -G app app
