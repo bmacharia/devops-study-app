@@ -108,9 +108,14 @@ async def read_stats():
 
 
 def main():
-    """Entry point for running the API server"""
+    """Entry point for running the API server."""
     logger.info(f"Starting {APP_NAME} API")
-    uvicorn.run("backend.main:app", host=API_HOST, port=API_PORT, reload=True)
+    uvicorn.run(
+        "backend.main:app",
+        host=API_HOST,
+        port=API_PORT,
+        reload=False,
+    )
 
 
 if __name__ == "__main__":

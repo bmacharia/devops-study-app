@@ -15,7 +15,7 @@ jobs:
     name: Build and Push Backend
     runs-on: ubuntu-latest
     # Only run for backend tags
-    if: contains(github.ref, 'backend')
+    if: startsWith(github.ref, 'refs/tags/backend')
 
     permissions:
       contents: read
@@ -36,14 +36,30 @@ jobs:
         id: tag
         run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
-      - name: Build and push Backend Docker image
+      - name: Build and load Backend Docker image
         uses: docker/build-push-action@v5
         with:
           context: ./src/backend
-          push: true
+          load: true
+          push: false
           tags: |
             ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.tag.outputs.TAG }}
             ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:latest
+
+      - name: Scan Backend image before publishing
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.tag.outputs.TAG }}
+          format: table
+          exit-code: "1"
+          ignore-unfixed: false
+          vuln-type: "os,library"
+          severity: "CRITICAL,HIGH"
+
+      - name: Publish scanned Backend image
+        run: |
+          docker push "${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.tag.outputs.TAG }}"
+          docker push "${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:latest"
     outputs:
       tag: ${{ steps.tag.outputs.TAG }}
       image: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}
@@ -52,7 +68,7 @@ jobs:
     name: Build and Push Frontend
     runs-on: ubuntu-latest
     # Only run for frontend tags
-    if: contains(github.ref, 'frontend')
+    if: startsWith(github.ref, 'refs/tags/frontend')
 
     permissions:
       contents: read
@@ -73,14 +89,30 @@ jobs:
         id: tag
         run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
-      - name: Build and push frontend Docker image
+      - name: Build and load Frontend Docker image
         uses: docker/build-push-action@v5
         with:
           context: ./src/frontend
-          push: true
+          load: true
+          push: false
           tags: |
             ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.tag.outputs.TAG }}
             ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:latest
+
+      - name: Scan Frontend image before publishing
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.tag.outputs.TAG }}
+          format: table
+          exit-code: "1"
+          ignore-unfixed: false
+          vuln-type: "os,library"
+          severity: "CRITICAL,HIGH"
+
+      - name: Publish scanned Frontend image
+        run: |
+          docker push "${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.tag.outputs.TAG }}"
+          docker push "${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:latest"
     outputs:
       tag: ${{ steps.tag.outputs.TAG }}
       image: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}
