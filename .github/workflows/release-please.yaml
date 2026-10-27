@@ -14,6 +14,6 @@ jobs:
         with:
           # Will not trigger other workflows when using GITHUB_TOKEN
           # token: ${{ secrets.GITHUB_TOKEN }}
-          token: "${{ secrets.RELEASE.PLEASE.TOKEN }}"
+          token: "${{ secrets.RELEASE_PLEASE_TOKEN }}"
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
